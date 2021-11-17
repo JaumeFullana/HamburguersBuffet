@@ -5,14 +5,13 @@
  */
 package recogerhamburguesasserveisprocesos;
 
-import javax.swing.ImageIcon;
-
 /**
  *
  * @author Jaume
  */
 public class Table{
     
+    private MyTask myTask;
     private int hamburguersNumber;
     private int maxHamburguers;
 
@@ -24,6 +23,14 @@ public class Table{
         this.maxHamburguers = maxHamburguers;
     }
 
+    public MyTask getMyTask() {
+        return myTask;
+    }
+
+    public void setMyTask(MyTask myTask) {
+        this.myTask = myTask;
+    }
+    
     public int getHamburguersNumber() {
         return hamburguersNumber;
     }
@@ -39,6 +46,7 @@ public class Table{
     public void setMaxHamburguers(int maxHamburguers) {
         this.maxHamburguers = maxHamburguers;
     }
+
     /**
      * Metodo sincronizado en el que entran los thread Chef. Mientras la mesa tenga
      * el numero maximo de hamburguesas, pondremos los thread a esperar. Una vez haya 
@@ -50,13 +58,11 @@ public class Table{
      */
     public synchronized void placeMeal(int numeroHamburgesas, Chef chef) throws InterruptedException{
         while (this.getHamburguersNumber()>=this.getMaxHamburguers()){
-            chef.setImage(chef.getChefWaitingImage());
-            //System.out.println(chef.getName()+" chef Esperando");
             this.wait();
         }
-        //Thread.sleep(40);
-        this.setHamburguersNumber(this.getHamburguersNumber()+numeroHamburgesas);
-        //System.out.println("AVISO!!! Nuevas hamburguesas, chef "+chef.getName()+": "+this.getHamburguersNumber());
+        this.myTask.getRestaurant().addHamburguer(this.myTask.getRestaurant().getYBaldosaPosition(chef.getPosYHamburguesa()), 
+                this.myTask.getRestaurant().getXBaldosaPosition(chef.getPosXHamburguesa()));
+        this.hamburguersNumber+=numeroHamburgesas;
         this.notifyAll();
     }
     /**
@@ -69,14 +75,59 @@ public class Table{
      */
     public synchronized void takeMeal(int numeroHamburgesas, Client client) throws InterruptedException{
         while (this.getHamburguersNumber()==0){
-            client.setImage(client.getClientWaitingImage());
-            //System.out.println(client.getName()+" cliente Esperando");
+            client.setImage(client.getBackClientStatic());
             this.wait();
         }
-        //Thread.sleep(40);
-        this.setHamburguersNumber(this.getHamburguersNumber()-numeroHamburgesas);
-        //System.out.println(client.getName()+" Cliente coge, Hamburguesas restantes: "+this.getHamburguersNumber());
+        this.myTask.getRestaurant().removeHamburguer(this.myTask.getRestaurant().getYBaldosaPosition(client.getPosYHamburguesa()), 
+            this.myTask.getRestaurant().getXBaldosaPosition(client.getPosXHamburguesa()));
+        this.hamburguersNumber-=numeroHamburgesas;
         this.notifyAll();
     }
     
+
+    public synchronized void buscarEspacioHamburguesa(Chef chef) throws InterruptedException{
+        int i=12;
+        boolean sinEspacio=true;
+        while (sinEspacio){
+            int j=5;
+            while (j<this.myTask.getRestaurant().getBaldosas()[i].length-5 && sinEspacio){
+                if (this.myTask.getRestaurant().getBaldosas()[i][j]==5){
+                    chef.setPosYHamburguesa(myTask.getRestaurant().getYPixelPosition(i));
+                    chef.setPosXHamburguesa(myTask.getRestaurant().getXPixelPosition(j));
+                    this.myTask.getRestaurant().getBaldosas()[i][j]=7;
+                    sinEspacio=false;
+                }
+                j++;
+            }
+            i++;
+            if (i>14){
+                i=12;
+                this.wait();
+            }
+        }
+        this.notifyAll();
+    }
+    
+    public synchronized void buscarHamburguesa(Client client) throws InterruptedException{
+        int i=12;
+        boolean sinHamburugesa=true;
+        while (sinHamburugesa){
+            int j=5;
+            while (j<this.myTask.getRestaurant().getBaldosas()[i].length-5 && sinHamburugesa){
+                if (this.myTask.getRestaurant().getBaldosas()[i][j]==6){
+                    client.setPosYHamburguesa(myTask.getRestaurant().getYPixelPosition(i));
+                    client.setPosXHamburguesa(myTask.getRestaurant().getXPixelPosition(j));
+                    this.myTask.getRestaurant().getBaldosas()[i][j]=8;
+                    sinHamburugesa=false;
+                }
+                j++;
+            }
+            i++;
+            if (i>14){
+                i=12;
+                this.wait();
+            }
+        }
+        this.notifyAll();
+    }
 }

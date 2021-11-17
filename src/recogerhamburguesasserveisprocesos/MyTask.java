@@ -7,6 +7,7 @@ package recogerhamburguesasserveisprocesos;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 
@@ -25,11 +26,39 @@ public class MyTask extends JFrame{
     
     private ArrayList <Client> clientList;
     private ArrayList <Chef> chefList;
+    private Restaurant restaurant;
     private Table table;
     private Viewer viewer;
     private ControlPanel cPanel;
     private AuxiliarImages auxiliar;
-    protected static boolean terminar;
+    private boolean stopped;
+    private boolean paused;
+    private int velocity;
+
+    public int getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(int velocity) {
+        this.velocity = velocity;
+    }
+    
+    public boolean isStopped() {
+        return stopped;
+    }
+
+    public void setStopped(boolean stopped) {
+        this.stopped = stopped;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
 
     public MyTask( ArrayList<Client> clientList, ArrayList <Chef> chefList, Table table, Viewer view, ControlPanel cPanel) {
         this.setViewer(view);
@@ -44,6 +73,14 @@ public class MyTask extends JFrame{
         this.setVisible(true);
     }
 
+    public Restaurant getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
+    }
+    
     public AuxiliarImages getAuxiliar() {
         return auxiliar;
     }
@@ -73,6 +110,7 @@ public class MyTask extends JFrame{
     }
 
     public void setTable(Table table) {
+        table.setMyTask(this);
         this.table = table;
     }
 
@@ -81,9 +119,8 @@ public class MyTask extends JFrame{
     }
 
     public void setViewer(Viewer viewer) {
-        viewer.setParentFrame(this);
+        viewer.setMyTask(this);
         this.viewer = viewer;
-        //this.add(viewer);
     }
 
     public ControlPanel getcPanel() {
@@ -100,42 +137,44 @@ public class MyTask extends JFrame{
      * canvas Viewer.
      */
     public void addPanels(){
-        //GridBagConstraints c= new GridBagConstraints();
-        //c.gridx=0;
-        //this.add(cPanel,c);
-        //c.gridx=1;
-        //this.add(this.viewer);
         this.setLayout(new GridBagLayout());
         GridBagConstraints c=new GridBagConstraints();
         c.gridx=0;
         c.fill=GridBagConstraints.BOTH;
-        c.weightx=0.1;
+        c.weightx=0.084;
         c.weighty=1;
+        c.insets=new Insets(0,0,0,0);
         this.add(this.cPanel,c);
-        c.weightx=0.9;
+        c.weightx=0.91;
         c.gridx=1;
+        c.insets=new Insets(0,0,0,0);
         this.add(this.viewer,c);
-    }
-    /**
-     * Metodo que da o actualiza los valores de hamburguesas maximas, numero de hamburguesas,
-     * tiempo comiendo i tiempo cocinando. Es llamado al principio i puede ser llamado en cualquier momento
-     * a traves de un boton. 
-     */
-    public void setValores(){
-        this.getTable().setMaxHamburguers(Integer.parseInt(this.getcPanel().getMaxNumHamburgers().getText().trim()));
-        this.getTable().setHamburguersNumber(Integer.parseInt(this.getcPanel().getNumHamburgers().getText().trim()));
-        Client.setMinTimeEating(Integer.parseInt(this.getcPanel().getMinTimeEating().getText().trim()));
-        Client.setMaxTimeEating(Integer.parseInt(this.getcPanel().getMaxTimeEating().getText().trim()));
-        Chef.setMinTimeCooking(Integer.parseInt(this.getcPanel().getMinTimeCooking().getText().trim()));
-        Chef.setMaxTimeCooking(Integer.parseInt(this.getcPanel().getMaxTimeCooking().getText().trim()));
     }
     
     public void reiniciar(){
-        this.setViewer(new Viewer());
-        this.addPanels();
-        this.setClientList(new ArrayList <Client>());
-        this.setChefList(new ArrayList <Chef>());
-        this.setTable(new Table(0,0));
+        this.stopped=false;
+        this.paused=false;
+    }
+    
+    public void pausar(){
+        this.paused=true;
+    }
+    
+    public void terminar(){
+        this.stopped=true;
+        this.paused=true;
+        for (int i=0;i<this.clientList.size();i++){
+            this.clientList.get(i).interrupt();
+        }       
+        for (int i=0;i<this.chefList.size();i++){
+            this.chefList.get(i).interrupt();
+        }
+    }
+    
+    public void waitIfPaused(){
+        while(this.isPaused()){
+            Thread.onSpinWait();
+        }
     }
     
     /**
@@ -147,19 +186,21 @@ public class MyTask extends JFrame{
      * @param numClient int cantidad de clientes
      */
     public void empezar(int numChef, int numClient){
-        MyTask.terminar=false;
+        this.stopped=false;
+        this.paused=false;
+        this.clientList=new ArrayList <Client>();
+        this.chefList=new ArrayList <Chef>();
+        this.restaurant=new Restaurant();
         int numMayor=numClient;
         if (numChef>numClient){
             numMayor=numChef;
         }
         for (int i=0; i<numMayor;i++){
             if(i<numClient){
-                this.getClientList().add(new Client(this.getTable(),this.getAuxiliar().getClient(),
-                    getAuxiliar().getClientEating(), getAuxiliar().getClientWaiting()));
+                this.getClientList().add(new Client(this));
             }
             if (i<numChef){
-                this.getChefList().add(new Chef(this.getTable(),getAuxiliar().getChef(),
-                    getAuxiliar().getChefCooking(),getAuxiliar().getChefWaiting()));
+                this.getChefList().add(new Chef(this));
             }
         }
         
