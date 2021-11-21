@@ -1,18 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package recogerhamburguesasserveisprocesos;
 
-import java.awt.Canvas;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 
 /**
  *
- * @author PC
+ * @author Jaume
  */
 public class Viewer extends Canvas implements Runnable{
     
@@ -21,33 +15,25 @@ public class Viewer extends Canvas implements Runnable{
     public Viewer() {
     }
 
-    public MyTask getMyTask() {
-        return myTask;
-    }
-
     public void setMyTask(MyTask myTask) {
         this.myTask = myTask;
     }
     
-    @Override
-    public void run() {
-        this.createBufferStrategy(3);
-        while (!myTask.isStopped()){
-            //while (!myTask.isPaused()){
-                this.pintar(this.getMyTask().getChefList(), this.getMyTask().getClientList(), 
-                    this.getMyTask().getTable().getHamburguersNumber());
-            //}
-            //necesari perque sino faig res, no funciona. Supos que es es garbage colector que sa carrega es thread.
-            //Thread.onSpinWait();
-        }
-        this.repaint();
-    }
-    
-    public void pintar(ArrayList <Chef> chefList, ArrayList <Client> clientList, int numHamburguers){
+    /**
+     * Metodo encargado de pintar todos los elementos del programa. Recibe por 
+     * parametro una ArrayList de chefs y otra de clientes para poder recorrerlas
+     * y pintarlos en el canvas. El fondo siempre es el mismo. Los otros elementos
+     * los situa dependiendo de la situacion de los chefs, de los clientes y de 
+     * la matriz de Restaurant.
+     * @param chefList ArrayList de la clase Chef con todos los chefs activos en el programa
+     * @param clientList ArrayList de la clase Client con todos los clientes activos en el programa
+     */
+    public void pintar(ArrayList <Chef> chefList, ArrayList <Client> clientList){
         BufferStrategy bs;
         bs=this.getBufferStrategy();
         Graphics g=bs.getDrawGraphics();
-        g.drawImage(this.getMyTask().getAuxiliar().getFondoRestaurante(), 0, 0,this.getWidth(),this.getHeight(), null);
+        g.drawImage(myTask.getAuxiliar().getFondoRestaurante(), 0, 0,this.getWidth(),this.getHeight(), null);
+        
         for (int i=0;i<chefList.size();i++){
             if (chefList.get(i).isCooking()){
                 if(i>5){
@@ -58,22 +44,57 @@ public class Viewer extends Canvas implements Runnable{
             }
             g.drawImage(chefList.get(i).getImage(), chefList.get(i).getPosX(), chefList.get(i).getPosY(), null);
         }
+        
+        g.drawImage(this.myTask.getAuxiliar().getTable(), 131, 376, null);
+        
+        for (int i=12;i<14;i++){
+            for (int j=5; j<this.myTask.getRestaurant().getBaldosas()[i].length-5;j++){
+                if(this.myTask.getRestaurant().getBaldosas()[i][j]==6 || this.myTask.getRestaurant().getBaldosas()[i][j]==8){
+                    if (i==12){
+                        g.drawImage(myTask.getAuxiliar().getHamburguer(), 
+                                myTask.getRestaurant().getXPixelPosition(j)+6, 
+                                myTask.getRestaurant().getYPixelPosition(i)+5, null);
+                    }
+                    else {
+                        g.drawImage(myTask.getAuxiliar().getHamburguer(), 
+                                myTask.getRestaurant().getXPixelPosition(j)+6, 
+                                myTask.getRestaurant().getYPixelPosition(i)-2, null);
+                    }
+                }
+            }
+        }
+        
         for (int i=0;i<clientList.size();i++){
             g.drawImage(clientList.get(i).getImage(), clientList.get(i).getPosX(), clientList.get(i).getPosY(), null);
             if (clientList.get(i).isEating()){
                 g.drawImage(clientList.get(i).getHamburguer(), clientList.get(i).getPosX()+5, clientList.get(i).getPosY()+62, null);
             }
         }
-        for (int i=12;i<14;i++){
-            for (int j=5; j<this.myTask.getRestaurant().getBaldosas()[i].length-5;j++){
-                if(this.myTask.getRestaurant().getBaldosas()[i][j]==6 || this.myTask.getRestaurant().getBaldosas()[i][j]==8){
-                    g.drawImage(this.getMyTask().getAuxiliar().getHamburguer(), 
-                            this.getMyTask().getRestaurant().getXPixelPosition(j)+8, 
-                            this.getMyTask().getRestaurant().getYPixelPosition(i)+3, null);
+        
+        g.dispose();
+        bs.show(); 
+    }
+    
+    @Override
+    /**
+     * Metodo que va llamando en bucle al metodo pintar. Implementado a traves de 
+     * la interfaz runnable. Crea una buffered strategy i va llamando al metodo 
+     * pintar mientras el boolean Stopped sea false i si el booleano paused es false.
+     */
+    public void run() {
+        this.createBufferStrategy(3);
+        while (!myTask.isStopped()){
+            if (!myTask.isPaused()){
+                this.pintar(myTask.getChefList(), myTask.getClientList());
+            }
+            else {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    System.out.println(ex.getMessage());
                 }
             }
         }
-        g.dispose();
-        bs.show(); 
+        this.repaint();
     }
 }

@@ -1,27 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package recogerhamburguesasserveisprocesos;
 
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTable;
-
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /**
  *
@@ -63,17 +45,55 @@ public class ControlPanel extends JPanel implements ActionListener, ChangeListen
     public ControlPanel() {
         this.initComponents();
     }
-    
-    public MyTask getMyTask() {
-        return myTask;
-    }
 
     public void setMyTask(MyTask myTask) {
         this.myTask = myTask;
     }
     
+    @Override
     /**
-     * Instancia i añade los componentes al ControlPanel
+     * Metodo que es llamado cuando se aprieta uno de los botones de la aplicacion.
+     * Puede hacer empezar, pausar o terminar la ejecucion del programa.
+     */
+    public void actionPerformed(ActionEvent e) {
+        if (e.getActionCommand().equals("TERMINAR")){
+            myTask.terminar();
+            this.textNumChefs.setEnabled(true);
+            this.textNumClients.setEnabled(true);
+            this.sliderNumChefs.setEnabled(true);
+            this.sliderNumClients.setEnabled(true);
+            this.terminar.setEnabled(true);
+            this.pausar.setEnabled(true);
+            this.empezar.setEnabled(true);
+        } 
+        else if (e.getActionCommand().equals("         PAUSAR         ")){
+            myTask.pausar();
+            this.terminar.setEnabled(true);
+            this.pausar.setEnabled(false);
+            this.empezar.setEnabled(true);
+        }
+        else if (e.getActionCommand().equals("EMPEZAR")){
+            if (!myTask.isStopped() && myTask.isPaused()){
+                this.myTask.reiniciar();
+            } else {
+                this.setInitialValues();
+                this.myTask.empezar((int)this.sliderNumChefs.getValue(),(int)this.sliderNumClients.getValue());
+                this.setTableValues();
+                this.textNumChefs.setEnabled(false);
+                this.textNumClients.setEnabled(false);
+                this.sliderNumChefs.setEnabled(false);
+                this.sliderNumClients.setEnabled(false);
+                Thread t=new Thread(this);
+                t.start();
+            }
+            this.terminar.setEnabled(true);
+            this.pausar.setEnabled(true);
+            this.empezar.setEnabled(false);
+        }
+    }
+    
+    /**
+     * Instancia y añade los componentes al ControlPanel
      */
     public void initComponents(){
         this.setLayout(new GridBagLayout());
@@ -301,48 +321,28 @@ public class ControlPanel extends JPanel implements ActionListener, ChangeListen
         this.add(this.table,c); 
     }
     
-    /**
-     * LLama a al metodo setValores() y al metodo empezar si el boton apretado es 
-     * el de empezar. Si ha sido el de empezar tambien desactiva los textfield
-     * de numChefs i numClients i el boton de empezar.
-     * @param e 
-     */
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("TERMINAR")){
-            myTask.terminar();
-            this.sliderNumChefs.setEnabled(true);
-            this.sliderNumClients.setEnabled(true);
-            this.terminar.setEnabled(true);
-            this.pausar.setEnabled(true);
-            this.empezar.setEnabled(true);
-        } 
-        else if (e.getActionCommand().equals("         PAUSAR         ")){
-            myTask.pausar();
-            this.terminar.setEnabled(true);
-            this.pausar.setEnabled(false);
-            this.empezar.setEnabled(true);
-        }
-        else if (e.getActionCommand().equals("EMPEZAR")){
-            if (!myTask.isStopped() && myTask.isPaused()){
-                this.getMyTask().reiniciar();
-            } else {
-                this.setInitialValues();
-                this.getMyTask().empezar((int)this.sliderNumChefs.getValue(),(int)this.sliderNumClients.getValue());
-                this.setTableValues();
-                this.sliderNumChefs.setEnabled(false);
-                this.sliderNumClients.setEnabled(false);
-                Thread t=new Thread(this);
-                t.start();
+    /**
+     * Metodo que va llamando en bucle al metodo setTableValues. Implementado a traves de 
+     * la interfaz runnable. Tiene una pequeña pausa en cada iteracion del bucle.
+     */
+    public void run() {
+        while (true){
+            try {
+                Thread.sleep(330);
+            } catch (InterruptedException ex) {
+                System.out.println(ex.getMessage());
             }
-            this.terminar.setEnabled(true);
-            this.pausar.setEnabled(true);
-            this.empezar.setEnabled(false);
+            this.setTableValues();
         }
     }
     
+    /**
+     * Coge todos los valores de los componenetes del control panel para asignarlos
+     * a sus respectivas variables. 
+     */
     public void setInitialValues(){
-        this.myTask.setVelocity((int)this.sliderVelocity.getValue());
+        this.myTask.setVelocity(210-(int)this.sliderVelocity.getValue());
         this.myTask.getTable().setMaxHamburguers((int)this.sliderMaxNumHamburgers.getValue());
         Client.setMinTimeEating((int)this.minTimeEating.getValue());
         Client.setMaxTimeEating((int)this.maxTimeEating.getValue());
@@ -350,6 +350,9 @@ public class ControlPanel extends JPanel implements ActionListener, ChangeListen
         Chef.setMaxTimeCooking((int)this.maxTimeCooking.getValue());
     }
     
+    /**
+     * Añade sus respectivos valores a la tabla de estadisticas.
+     */
     public void setTableValues(){
         String timeEating="0";
         String timeCooking="0";
@@ -366,6 +369,10 @@ public class ControlPanel extends JPanel implements ActionListener, ChangeListen
     }
 
     @Override
+    /**
+     * Metodo que asigna los valores de unos sliders o de unos spinners a una variables
+     * concretas.
+     */
     public void stateChanged(ChangeEvent e) {
         if (e.getSource() instanceof JSlider){
             JSlider slider=(JSlider)e.getSource();
@@ -374,7 +381,7 @@ public class ControlPanel extends JPanel implements ActionListener, ChangeListen
                     this.myTask.getTable().setMaxHamburguers((int)slider.getValue()); 
                 }
             } else if(slider==this.sliderVelocity){
-                this.myTask.setVelocity((int)slider.getValue());
+                this.myTask.setVelocity(210-(int)slider.getValue());
             }
         } 
         else if (e.getSource() instanceof JSpinner){
@@ -391,18 +398,6 @@ public class ControlPanel extends JPanel implements ActionListener, ChangeListen
             else if (spinner==this.maxTimeEating){
                 Client.setMaxTimeEating((int)spinner.getValue());
             }
-        }
-    }
-
-    @Override
-    public void run() {
-        while (true){
-            try {
-                Thread.sleep(330);
-            } catch (InterruptedException ex) {
-                System.out.println(ex.getMessage());
-            }
-            this.setTableValues();
         }
     }
 }

@@ -1,13 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package recogerhamburguesasserveisprocesos;
 
 import java.awt.Image;
 import java.util.Random;
-
 
 /**
  *
@@ -17,24 +11,20 @@ public class Chef extends Thread{
     
     private MyTask myTask;
     private Image image;
-    private Image FrontChefStatic;
-    private Image FrontChefMoving1;
-    private Image FrontChefMoving2;
-    private Image BackChefStatic;
-    private Image BackChefMoving1;
-    private Image BackChefMoving2;
-    private Image LeftChefStatic;
-    private Image LeftChefMoving1;
-    private Image LeftChefMoving2;
-    private Image RightChefStatic;
-    private Image RightChefMoving1;
-    private Image RightChefMoving2;
-    private int counter;
+    private Image frontChefStatic;
+    private Image frontChefMoving1;
+    private Image frontChefMoving2;
+    private Image backChefStatic;
+    private Image backChefMoving1;
+    private Image backChefMoving2;
+    private Image leftChefStatic;
+    private Image leftChefMoving1;
+    private Image leftChefMoving2;
+    private Image rightChefStatic;
+    private Image rightChefMoving1;
+    private Image rightChefMoving2;
     private static int minTimeCooking;
     private static int maxTimeCooking;
-    //arriba=1, izquierda=2, abajo=3, derecha=4
-    private int direction;
-    private int movingPicture;
     private int posXFogon;
     private int posYFogon;
     private int posY;
@@ -46,184 +36,70 @@ public class Chef extends Thread{
     public Chef(MyTask myTask) {
         this.myTask = myTask;
         this.image = myTask.getAuxiliar().getBackChefStatic();
-        this.FrontChefStatic=myTask.getAuxiliar().getFrontChefStatic();
-        this.FrontChefMoving1=myTask.getAuxiliar().getFrontChefMoving1();
-        this.FrontChefMoving2=myTask.getAuxiliar().getFrontChefMoving2();
-        this.BackChefStatic=myTask.getAuxiliar().getBackChefStatic();
-        this.BackChefMoving1=myTask.getAuxiliar().getBackChefMoving1();
-        this.BackChefMoving2=myTask.getAuxiliar().getBackChefMoving2();
-        this.LeftChefStatic=myTask.getAuxiliar().getLeftChefStatic();
-        this.LeftChefMoving1=myTask.getAuxiliar().getLeftChefMoving1();
-        this.LeftChefMoving2=myTask.getAuxiliar().getLeftChefMoving2();
-        this.RightChefStatic=myTask.getAuxiliar().getRightChefStatic();
-        this.RightChefMoving1=myTask.getAuxiliar().getRightChefMoving1();
-        this.RightChefMoving2=myTask.getAuxiliar().getRightChefMoving2();
-        this.direction=1;
-        this.movingPicture=0;
+        this.frontChefStatic=myTask.getAuxiliar().getFrontChefStatic();
+        this.frontChefMoving1=myTask.getAuxiliar().getFrontChefMoving1();
+        this.frontChefMoving2=myTask.getAuxiliar().getFrontChefMoving2();
+        this.backChefStatic=myTask.getAuxiliar().getBackChefStatic();
+        this.backChefMoving1=myTask.getAuxiliar().getBackChefMoving1();
+        this.backChefMoving2=myTask.getAuxiliar().getBackChefMoving2();
+        this.leftChefStatic=myTask.getAuxiliar().getLeftChefStatic();
+        this.leftChefMoving1=myTask.getAuxiliar().getLeftChefMoving1();
+        this.leftChefMoving2=myTask.getAuxiliar().getLeftChefMoving2();
+        this.rightChefStatic=myTask.getAuxiliar().getRightChefStatic();
+        this.rightChefMoving1=myTask.getAuxiliar().getRightChefMoving1();
+        this.rightChefMoving2=myTask.getAuxiliar().getRightChefMoving2();
         this.cooking=false;
         this.addFogon();
     }
-
-    public boolean isCooking() {
-        return cooking;
+    
+    public Image getImage() {
+        return image;
     }
-
-    public void setCooking(boolean cooking) {
-        this.cooking = cooking;
+    
+    public int getPosX() {
+        return posX;
+    }
+    
+    public int getPosXHamburguesa() {
+        return posXHamburguesa;
+    }
+    
+    public int getPosY() {
+        return posY;
     }
     
     public int getPosYHamburguesa() {
         return posYHamburguesa;
     }
-
-    public void setPosYHamburguesa(int posYHamburguesa) {
-        this.posYHamburguesa = posYHamburguesa;
+    
+    public boolean isCooking() {
+        return cooking;
     }
-
-    public int getPosXHamburguesa() {
-        return posXHamburguesa;
-    }
-
-    public void setPosXHamburguesa(int posXHamburguesa) {
-        this.posXHamburguesa = posXHamburguesa;
-    }
-
-    public int getDirection() {
-        return direction;
-    }
-
-    public void setDirection(int direction) {
-        this.direction = direction;
-    }
-
-    public int getMovingPicture() {
-        return movingPicture;
-    }
-
-    public void setMovingPicture(int movingPicture) {
-        this.movingPicture = movingPicture;
-    }
-
-    public int getPosXFogon() {
-        return posXFogon;
-    }
-
-    public void setPosXFogon(int posXFogon) {
-        this.posXFogon = posXFogon;
-    }
-
-    public int getPosYFogon() {
-        return posYFogon;
-    }
-
-    public void setPosYFogon(int posYFogon) {
-        this.posYFogon = posYFogon;
-    }
-
-    public int getPosY() {
-        return posY;
-    }
-
-    public void setPosY(int posY) {
-        this.posY = posY;
-    }
-
-    public int getPosX() {
-        return posX;
-    }
-
-    public void setPosX(int posX) {
-        this.posX = posX;
-    }
-
-    public MyTask getMyTask() {
-        return myTask;
-    }
-
-    public void setMyTask(MyTask myTask) {
-        this.myTask = myTask;
-    }
-
-    public Image getImage() {
-        return image;
-    }
-
+    
     public void setImage(Image image) {
         this.image = image;
     }
-
-    public Image getFrontChefStatic() {
-        return FrontChefStatic;
-    }
-
-    public void setFrontChefStatic(Image FrontChefStatic) {
-        this.FrontChefStatic = FrontChefStatic;
-    }
-
-    public Image getFrontChefMoving1() {
-        return FrontChefMoving1;
-    }
-
-    public void setFrontChefMoving1(Image FrontChefMoving1) {
-        this.FrontChefMoving1 = FrontChefMoving1;
-    }
-
-    public Image getFrontChefMoving2() {
-        return FrontChefMoving2;
-    }
-
-    public void setFrontChefMoving2(Image FrontChefMoving2) {
-        this.FrontChefMoving2 = FrontChefMoving2;
-    }
-
-    public Image getBackChefStatic() {
-        return BackChefStatic;
-    }
-
-    public void setBackChefStatic(Image BackChefStatic) {
-        this.BackChefStatic = BackChefStatic;
-    }
-
-    public Image getBackChefMoving1() {
-        return BackChefMoving1;
-    }
-
-    public void setBackChefMoving1(Image BackChefMoving1) {
-        this.BackChefMoving1 = BackChefMoving1;
-    }
-
-    public Image getBackChefMoving2() {
-        return BackChefMoving2;
-    }
-
-    public void setBackChefMoving2(Image BackChefMoving2) {
-        this.BackChefMoving2 = BackChefMoving2;
-    }
-
-    public int getCounter() {
-        return counter;
-    }
-
-    public void setCounter(int counter) {
-        this.counter = counter;
-    }
-
-    public static int getMinTimeCooking() {
-        return minTimeCooking;
-    }
-
+    
+    public static void setMaxTimeCooking(int maxTimeCooking) {
+        Chef.maxTimeCooking = maxTimeCooking;
+    } 
+        
     public static void setMinTimeCooking(int minTimeCooking) {
         Chef.minTimeCooking = minTimeCooking;
     }
-
-    public static int getMaxTimeCooking() {
-        return maxTimeCooking;
-    }
-
-    public static void setMaxTimeCooking(int maxTimeCooking) {
-        Chef.maxTimeCooking = maxTimeCooking;
+    
+    public void setPosXHamburguesa(int posXHamburguesa) {
+        this.posXHamburguesa = posXHamburguesa;
     }
     
+    public void setPosYHamburguesa(int posYHamburguesa) {
+        this.posYHamburguesa = posYHamburguesa;
+    }
+    
+    /**
+     * Recorre la matriz baldosas de la clase Restaurant para encontrar un fogon libre
+     * y coger su posicion.
+     */
     public void addFogon(){
         int i=2;
         boolean sinFogon=true;
@@ -240,85 +116,14 @@ public class Chef extends Thread{
         }
     }
     
-    public void moveChef(int direccion) throws InterruptedException{
-        //arriba=1, izquierda=2, abajo=3, derecha=4
-        if(direccion==1){
-            this.setMovingPicture(1);
-            this.image=this.BackChefMoving1;
-            posY-=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(2);
-            this.image=this.BackChefStatic;
-            posY-=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(3);
-            this.image=this.BackChefMoving2;
-            posY-=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(0);
-            this.image=this.BackChefStatic;
-            posY-=7;
-            Thread.sleep(myTask.getVelocity());
-        } 
-        else if (direccion==2){
-            this.setMovingPicture(1);
-            this.image=this.LeftChefMoving1;
-            posX-=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(2);
-            this.image=this.LeftChefStatic;
-            posX-=7;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(3);
-            this.image=this.LeftChefMoving2;
-            posX-=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(0);
-            this.image=this.LeftChefStatic;
-            posX-=7;
-            Thread.sleep(myTask.getVelocity());
-        }
-        else if(direccion==3){
-            this.setMovingPicture(1);
-            this.image=this.FrontChefMoving1;
-            posY+=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(2);
-            this.image=this.FrontChefStatic;
-            posY+=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(3);
-            this.image=this.FrontChefMoving2;
-            posY+=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(0);
-            this.image=this.FrontChefStatic;
-            posY+=7;
-            Thread.sleep(100);
-        }
-        else if(direccion==4){
-            this.setMovingPicture(1);
-            this.image=this.RightChefMoving1;
-            posX+=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(2);
-            this.image=this.RightChefStatic;
-            posX+=7;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(3);
-            this.image=this.RightChefMoving2;
-            posX+=8;
-            Thread.sleep(myTask.getVelocity());
-            this.setMovingPicture(0);
-            this.image=this.RightChefStatic;
-            posX+=7;
-            Thread.sleep(myTask.getVelocity());
-        }
-    }
-    
-    
-    
-    public void triarMoviment(boolean haciaLaMesa) throws InterruptedException{
+    /**
+     * Metodo que dependiendo de si el chef va hacia la mesa o no, y de la diferencia 
+     * de posiciones entre el chef y la posicion de la mesa donde tiene que poner la hamburguesa
+     * o el chef y su fogon llamara al metodo moveChef pasandole un parametro u otro.
+     * @param haciaLaMesa booleano que dice si el chef va hacia la mesa o no
+     * @throws InterruptedException puede lanzar una excepcion debido al metodo moveChef()
+     */
+    public void chooseMovement(boolean haciaLaMesa) throws InterruptedException{
         int diferenciaY=0;
         int diferenciaX=0;
         if (haciaLaMesa){
@@ -381,24 +186,20 @@ public class Chef extends Thread{
                 }
             }
         }
-
     }
     
-    @Override
-    public void run() {
-        while (!myTask.isStopped()){
-            while(!myTask.isPaused()){
-                this.cook(1);
-            }
-            Thread.onSpinWait();
-        }
-    }
-    
+    /**
+     * Metodo que es todo la logica del chef. Mueve el chef, hace que deje 
+     * hamburguesas en la mesa, lleva al chef hasta su fogon y hace que cocine la 
+     * hamburguesa. Se va llamando al metodo waitIfPaused() para que se pare la ejeccucion
+     * del metodo en el caso de que la aplicacion este pausada.
+     * @param numberHamburguers int numero de hamburguesas que lleva el chef en un viaje
+     */
     public void cook(int numberHamburguers){
         Random r=new Random();
         try {
             cooking=true;
-            this.image=this.BackChefStatic;
+            this.image=this.backChefStatic;
             int timeCooking=r.nextInt(Chef.maxTimeCooking-Chef.minTimeCooking)+Chef.minTimeCooking;
             myTask.waitIfPaused();
             Thread.sleep(timeCooking);
@@ -406,23 +207,110 @@ public class Chef extends Thread{
             myTask.getRestaurant().sumCookedHamburguer();
             myTask.waitIfPaused();
             cooking=false;
-            this.image=this.FrontChefStatic;
-                this.myTask.getTable().buscarEspacioHamburguesa(this);
+            this.image=this.frontChefStatic;
+                this.myTask.getTable().searchHamburgerSpace(this);
             myTask.waitIfPaused();
             while(this.posXHamburguesa!=this.posX || this.posYHamburguesa-62!=this.posY ){
-                this.triarMoviment(true);
+                this.chooseMovement(true);
             myTask.waitIfPaused();
             }
-            this.image=this.FrontChefStatic;
+            this.image=this.frontChefStatic;
             Thread.sleep(100);
             this.myTask.getTable().placeMeal(numberHamburguers,this);
             myTask.waitIfPaused();
             while(this.posXFogon!=this.posX || this.posYFogon!=this.posY ){
-                this.triarMoviment(false);
+                this.chooseMovement(false);
                 myTask.waitIfPaused();
             }
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+    
+    /**
+     * Mueve el chef hacia la direccion que se le ha pasado por parametro asignando
+     * valores nuevos a las variables posY y posX. Va asignando difernts imagenes a 
+     * image para simular los pasos.
+     * @param direccion int que representa la direccion en la que se mueve el chef
+     * @throws InterruptedException puede lanzar una excepcion devido al metodo sleep()
+     */
+    public void moveChef(int direccion) throws InterruptedException{
+        //arriba=1, izquierda=2, abajo=3, derecha=4
+        if(direccion==1){
+            this.image=this.backChefMoving1;
+            posY-=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.backChefStatic;
+            posY-=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.backChefMoving2;
+            posY-=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.backChefStatic;
+            posY-=7;
+            Thread.sleep(myTask.getVelocity());
+        } 
+        else if (direccion==2){
+            this.image=this.leftChefMoving1;
+            posX-=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.leftChefStatic;
+            posX-=7;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.leftChefMoving2;
+            posX-=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.leftChefStatic;
+            posX-=7;
+            Thread.sleep(myTask.getVelocity());
+        }
+        else if(direccion==3){
+            this.image=this.frontChefMoving1;
+            posY+=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.frontChefStatic;
+            posY+=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.frontChefMoving2;
+            posY+=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.frontChefStatic;
+            posY+=7;
+            Thread.sleep(myTask.getVelocity());
+        }
+        else if(direccion==4){
+            this.image=this.rightChefMoving1;
+            posX+=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.rightChefStatic;
+            posX+=7;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.rightChefMoving2;
+            posX+=8;
+            Thread.sleep(myTask.getVelocity());
+            this.image=this.rightChefStatic;
+            posX+=7;
+            Thread.sleep(myTask.getVelocity());
+        }
+    }
+    
+    @Override
+    /**
+     * Metodo que va llamando en bucle al metodo cook. Implementado a traves de 
+     * la interfaz runnable. Tambien va llamando al metodo sleep en cada iteracion del bucle.
+     */
+    public void run() {
+        while (!myTask.isStopped()){
+            if (!myTask.isPaused()){
+                this.cook(1);
+            }
+            else {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
         }
     }
 }

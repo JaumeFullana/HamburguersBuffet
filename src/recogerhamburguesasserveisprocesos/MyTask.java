@@ -1,13 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package recogerhamburguesasserveisprocesos;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 
@@ -17,10 +10,8 @@ import javax.swing.JFrame;
  */
 public class MyTask extends JFrame{
     
-    public static void main(String[] args)  throws InterruptedException {
-        
-        MyTask myTask=new MyTask(new ArrayList <Client>(),new ArrayList <Chef>(),new Table(0,0),new Viewer(),new ControlPanel());
-        myTask.setAuxiliar(new AuxiliarImages());
+    public static void main(String[] args)  throws InterruptedException { 
+        MyTask myTask=new MyTask(new ArrayList <Client>(),new ArrayList <Chef>(),new Table(0,0),new Viewer(),new ControlPanel(),new AuxiliarImages());
     }
     
     
@@ -35,101 +26,69 @@ public class MyTask extends JFrame{
     private boolean paused;
     private int velocity;
 
-    public int getVelocity() {
-        return velocity;
-    }
-
-    public void setVelocity(int velocity) {
-        this.velocity = velocity;
-    }
-    
-    public boolean isStopped() {
-        return stopped;
-    }
-
-    public void setStopped(boolean stopped) {
-        this.stopped = stopped;
-    }
-
-    public boolean isPaused() {
-        return paused;
-    }
-
-    public void setPaused(boolean paused) {
-        this.paused = paused;
-    }
-
-
-    public MyTask( ArrayList<Client> clientList, ArrayList <Chef> chefList, Table table, Viewer view, ControlPanel cPanel) {
-        this.setViewer(view);
+    public MyTask( ArrayList<Client> clientList, ArrayList <Chef> chefList, Table table, Viewer viewer, ControlPanel cPanel, AuxiliarImages auxiliar) {
+        this.setViewer(viewer);
         this.setcPanel(cPanel);
         this.addPanels();
-        this.setClientList(clientList);
-        this.setChefList(chefList);
+        this.clientList=clientList;
+        this.chefList=chefList;
         this.setTable(table);
+        this.auxiliar=auxiliar;
         this.setSize(800,800);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
     }
-
-    public Restaurant getRestaurant() {
-        return restaurant;
-    }
-
-    public void setRestaurant(Restaurant restaurant) {
-        this.restaurant = restaurant;
-    }
     
     public AuxiliarImages getAuxiliar() {
         return auxiliar;
     }
-
-    public void setAuxiliar(AuxiliarImages auxiliar) {
-        this.auxiliar = auxiliar;
+    
+    public ArrayList<Chef> getChefList() {
+        return chefList;
     }
     
     public ArrayList<Client> getClientList() {
         return clientList;
     }
-
-    public void setClientList(ArrayList<Client> clientList) {
-        this.clientList = clientList;
-    }
-
-    public ArrayList<Chef> getChefList() {
-        return chefList;
-    }
-
-    public void setChefList(ArrayList<Chef> chefList) {
-        this.chefList = chefList;
+    
+    public Restaurant getRestaurant() {
+        return restaurant;
     }
     
     public Table getTable() {
         return table;
     }
-
+    
+    public int getVelocity() {
+        return velocity;
+    }
+    
+    public boolean isPaused() {
+        return paused;
+    }
+    
+    public boolean isStopped() {
+        return stopped;
+    }
+    
+    public void setcPanel(ControlPanel cPanel) {
+        cPanel.setMyTask(this);
+        this.cPanel = cPanel;
+    }
+    
     public void setTable(Table table) {
         table.setMyTask(this);
         this.table = table;
     }
-
-    public Viewer getViewer() {
-        return viewer;
+    
+    public void setVelocity(int velocity) {
+        this.velocity = velocity;
     }
 
     public void setViewer(Viewer viewer) {
         viewer.setMyTask(this);
         this.viewer = viewer;
-    }
-
-    public ControlPanel getcPanel() {
-        return cPanel;
-    }
-
-    public void setcPanel(ControlPanel cPanel) {
-        cPanel.setMyTask(this);
-        this.cPanel = cPanel;
     }
     
     /**
@@ -151,37 +110,12 @@ public class MyTask extends JFrame{
         this.add(this.viewer,c);
     }
     
-    public void reiniciar(){
-        this.stopped=false;
-        this.paused=false;
-    }
-    
-    public void pausar(){
-        this.paused=true;
-    }
-    
-    public void terminar(){
-        this.stopped=true;
-        this.paused=true;
-        for (int i=0;i<this.clientList.size();i++){
-            this.clientList.get(i).interrupt();
-        }       
-        for (int i=0;i<this.chefList.size();i++){
-            this.chefList.get(i).interrupt();
-        }
-    }
-    
-    public void waitIfPaused(){
-        while(this.isPaused()){
-            Thread.onSpinWait();
-        }
-    }
-    
     /**
      * Metodo que es para empezar la ejecucion de la app. Se le pasa el numero de chefs 
      * y el numero de clientes que queremos en la app, son instanciados i añadidos a sus
      * ArrayLists para luego empezar la ejecucion del thread de Viewer i luego empezar
-     * la ejecucion de los thread de los chefs y los clientes.
+     * la ejecucion de los thread de los chefs y los clientes. Tambien se instancia 
+     * el restaurante dentro de este metodo.
      * @param numChef int cantidad de chefs
      * @param numClient int cantidad de clientes
      */
@@ -204,7 +138,7 @@ public class MyTask extends JFrame{
             }
         }
         
-        Thread t=new Thread(this.getViewer());
+        Thread t=new Thread(this.viewer);
         t.start();
      
         for (int i=0; i<numMayor;i++){
@@ -217,4 +151,44 @@ public class MyTask extends JFrame{
         }
     }
     
+    /**
+     * Metodo que es llamado cuando se pausa el programa.
+     */
+    public void pausar(){
+        this.paused=true;
+    }
+    
+    /**
+     * Metodo que es llamado cuanda se reanuda la ejecucion del programa despues
+     * de una pausa.
+     */
+    public void reiniciar(){
+        this.stopped=false;
+        this.paused=false;
+    }
+    
+    /**
+     * Metodo que es llamado cuando se quiere terminar la ejecucion del programa.
+     * No cierra el frame.
+     */
+    public void terminar(){
+        this.stopped=true;
+        this.paused=true;
+        for (int i=0;i<this.clientList.size();i++){
+            this.clientList.get(i).interrupt();
+        }       
+        for (int i=0;i<this.chefList.size();i++){
+            this.chefList.get(i).interrupt();
+        }
+    }
+    
+    /**
+     * metodo para pausar la ejecucion de otro metodo mientras el programa este en
+     * pausa.
+     */
+    public void waitIfPaused(){
+        while(this.isPaused()){
+            Thread.onSpinWait();
+        }
+    }
 }
