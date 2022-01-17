@@ -378,7 +378,8 @@ public class ControlPanel extends JPanel implements ActionListener, ChangeListen
             JSlider slider=(JSlider)e.getSource();
             if(slider==this.sliderMaxNumHamburgers){
                 if (!slider.getValueIsAdjusting()){
-                    this.myTask.getTable().setMaxHamburguers((int)slider.getValue()); 
+                    this.myTask.getTable().setMaxHamburguers((int)slider.getValue());
+                    this.myTask.getTable().notifyMaxHamburguerChange();
                 }
             } else if(slider==this.sliderVelocity){
                 this.myTask.setVelocity(210-(int)slider.getValue());

@@ -125,4 +125,12 @@ public class Table{
         this.hamburguersNumber-=numeroHamburgesas;
         this.notifyAll();
     }
+    
+    /**
+     * Notifica a todos los threads que esten esperando para que vuelvan a ejecutarse.
+     * Se usa cuando se actualiza el numero maximo de hamburguesas.
+     */
+    public synchronized void notifyMaxHamburguerChange(){
+        this.notifyAll();
+    }
 }
